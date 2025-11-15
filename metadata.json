@@ -1,0 +1,5 @@
+{
+  "name": "AMS2 Setup Template Generator",
+  "description": "An advanced engineering setup and pit strategy template generator for Automobilista 2. Fill in the details of your car setup and race strategy to generate, preview, and export a detailed text template for analysis and sharing.",
+  "requestFramePermissions": []
+}
