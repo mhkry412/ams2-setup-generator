@@ -55,6 +55,35 @@ const generateTemplateText = (data: SetupData, templateType: string): string => 
     return settings;
   };
   
+  const buildGearRatios = (data: SetupData): string => {
+    const finalDrive = data.finalDriveRatio?.trim();
+    const gear1 = data.gear1?.trim();
+
+    let gearDisplay = `Final Drive Ratio: ${val(finalDrive)}\n`;
+
+    if (gear1) {
+      const gears = [
+        data.gear1, data.gear2, data.gear3, data.gear4, 
+        data.gear5, data.gear6, data.gear7, data.gear8
+      ]
+      .map((g, i) => g?.trim() ? `${i + 1}: ${g}` : null)
+      .filter(Boolean)
+      .join(', ');
+      
+      gearDisplay += `Gears: ${gears || 'N/A'}`;
+      return gearDisplay;
+    }
+
+    if (finalDrive) {
+      const estimatedRatios = [3.2, 2.1, 1.6, 1.2, 1.0, 0.8];
+      const gears = estimatedRatios.map((r, i) => `${i + 1}: ${r.toFixed(2)}`).join(', ');
+      gearDisplay += `Gears: ${gears} (Estimated standard ratios for a 6-speed)`;
+      return gearDisplay;
+    }
+
+    return `Final Drive Ratio: N/A\nGears: Not specified.`;
+  };
+
   const damageRepair = [
     `${data.flSuspension ? '[X]' : '[ ]'} FL Suspension`,
     `${data.frSuspension ? '[X]' : '[ ]'} FR Suspension`,
@@ -78,6 +107,7 @@ const generateTemplateText = (data: SetupData, templateType: string): string => 
 
   const frontDiffSettings = buildDiffSettings(data, 'front');
   const rearDiffSettings = buildDiffSettings(data, 'rear');
+  const gearRatiosSection = buildGearRatios(data);
 
   const targetLapTime = data.targetLapTimeMin || data.targetLapTimeSec || data.targetLapTimeMs 
     ? `${data.targetLapTimeMin}:${data.targetLapTimeSec}.${data.targetLapTimeMs}`
@@ -210,8 +240,7 @@ Notes: ${data.rearSuspensionNotes}
 --------------------------------------------------------------------
 [GEAR RATIOS]
 --------------------------------------------------------------------
-Final Drive Ratio: ${data.finalDriveRatio}
-Gears: 1: ${data.gear1}, 2: ${data.gear2}, 3: ${data.gear3}, 4: ${data.gear4}, 5: ${data.gear5}, 6: ${data.gear6}, 7: ${data.gear7}, 8: ${data.gear8}
+${gearRatiosSection}
 
 --------------------------------------------------------------------
 [FRONT DIFFERENTIAL]
