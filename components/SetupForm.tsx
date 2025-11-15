@@ -56,7 +56,7 @@ interface FormSelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> 
   info?: React.ReactNode;
 }
 const FormSelect: React.FC<FormSelectProps> = ({ label, name, children, info, ...props }) => (
-  <div className="form-group mb-3 relative z-10 focus-within:z-30">
+  <div className="form-group mb-3 relative z-20 focus-within:z-40">
     <label htmlFor={name} className="block mb-1.5 text-sm text-slate-300 flex items-center">
       {label}
       {info && <InfoIcon>{info}</InfoIcon>}

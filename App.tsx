@@ -724,18 +724,20 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       <div className="bg-slate-800/50 p-4 rounded-lg mb-5 border-l-4 border-teal-500">
         <h3 className="text-teal-500 mb-3 text-lg font-semibold">Template Output</h3>
-        <select 
-            value={templateType}
-            onChange={(e) => onTemplateTypeChange(e.target.value)}
-            className="w-full pl-2 pr-10 py-2 bg-white/10 border border-slate-600 rounded-md text-slate-300 text-base focus:outline-none focus:border-teal-500 appearance-none bg-no-repeat bg-right-3"
-            style={{backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e")`}}
-        >
-            <option className="text-black" value="all">All-in-One Template</option>
-            <option className="text-black" value="engineer">AI Prompt: Race Engineer</option>
-            <option className="text-black" value="coach">AI Prompt: Driver Coach</option>
-            <option className="text-black" value="strategist">AI Prompt: Race Strategist</option>
-            <option className="text-black" value="baseline">AI Prompt: Baseline Setup</option>
-        </select>
+        <div className="relative z-20 focus-within:z-40">
+          <select 
+              value={templateType}
+              onChange={(e) => onTemplateTypeChange(e.target.value)}
+              className="w-full pl-2 pr-10 py-2 bg-white/10 border border-slate-600 rounded-md text-slate-300 text-base focus:outline-none focus:border-teal-500 appearance-none bg-no-repeat bg-right-3"
+              style={{backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e")`}}
+          >
+              <option className="text-black" value="all">All-in-One Template</option>
+              <option className="text-black" value="engineer">AI Prompt: Race Engineer</option>
+              <option className="text-black" value="coach">AI Prompt: Driver Coach</option>
+              <option className="text-black" value="strategist">AI Prompt: Race Strategist</option>
+              <option className="text-black" value="baseline">AI Prompt: Baseline Setup</option>
+          </select>
+        </div>
         {['engineer', 'coach', 'strategist', 'baseline'].includes(templateType) && (
             <p className="text-xs text-slate-400 mt-2 italic animate-fade-in">
                 Note: AI Prompts are generated for you to copy and use with your preferred AI model.
@@ -747,27 +749,29 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className="bg-slate-800/50 p-4 rounded-lg mb-5 border-l-4 border-purple-500">
         <h3 className="text-purple-500 mb-3 text-lg font-semibold">Presets</h3>
         <div className="flex flex-col gap-3">
-          <select 
-            value={selectedPreset} 
-            onChange={(e) => {
-              const name = e.target.value;
-              setSelectedPreset(name);
-              if (name) {
-                onLoadPreset(name);
-                setPresetName(name);
-              } else {
-                setPresetName('');
-              }
-            }}
-            className="w-full pl-2 pr-10 py-2 bg-white/10 border border-slate-600 rounded-md text-slate-300 text-base focus:outline-none focus:border-purple-500 appearance-none bg-no-repeat bg-right-3" style={{backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e")`}}
-          >
-            <option value="" className="text-black">Load Preset...</option>
-            {Object.entries(groupedPresets).sort(([a], [b]) => a.localeCompare(b)).map(([carClass, classPresets]) => (
-                <optgroup label={carClass} key={carClass}>
-                    {classPresets.sort((a,b) => a.name.localeCompare(b.name)).map(p => <option className="text-black" key={p.name} value={p.name}>{p.name}</option>)}
-                </optgroup>
-            ))}
-          </select>
+          <div className="relative z-20 focus-within:z-40">
+            <select 
+              value={selectedPreset} 
+              onChange={(e) => {
+                const name = e.target.value;
+                setSelectedPreset(name);
+                if (name) {
+                  onLoadPreset(name);
+                  setPresetName(name);
+                } else {
+                  setPresetName('');
+                }
+              }}
+              className="w-full pl-2 pr-10 py-2 bg-white/10 border border-slate-600 rounded-md text-slate-300 text-base focus:outline-none focus:border-purple-500 appearance-none bg-no-repeat bg-right-3" style={{backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e")`}}
+            >
+              <option value="" className="text-black">Load Preset...</option>
+              {Object.entries(groupedPresets).sort(([a], [b]) => a.localeCompare(b)).map(([carClass, classPresets]) => (
+                  <optgroup label={carClass} key={carClass}>
+                      {classPresets.sort((a,b) => a.name.localeCompare(b.name)).map(p => <option className="text-black" key={p.name} value={p.name}>{p.name}</option>)}
+                  </optgroup>
+              ))}
+            </select>
+          </div>
           <input 
             type="text"
             placeholder="Enter preset name..."
