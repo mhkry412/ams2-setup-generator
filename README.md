@@ -13,91 +13,156 @@ An advanced, offline-first setup sheet and AI prompt generator for the Automobil
 
 ---
 
-## Core Philosophy: Your Offline-First, AI-Ready Engineering Hub
+## Deconstructing the AI Prompt Generation Engine (`generateTemplateText`)
 
-This application is built on a simple but powerful premise: to be the ultimate digital engineering notebook for AMS2. It is **not an AI app**; it does not connect to any AI model directly. Instead, it is an expert-level **tool for using AI effectively**.
+This section provides the most comprehensive, detailed, and technical explanation of the application's core intellectual property: the AI prompt generation engine. This function is not merely concatenating strings; it is a programmatic prompt engineering system designed to transform a general-purpose Large Language Model (LLM) into a domain-specific expert.
 
-It solves the biggest challenge in getting useful advice from AI: providing high-quality, structured, and context-rich data. The app does the hard work of prompt engineering *for you*, taking your detailed inputs and formatting them into the perfect query for models like Google's Gemini or OpenAI's ChatGPT.
+### Core Philosophy: Programmatic Prompt Engineering
 
-Key principles:
--   **100% Offline:** After the first visit, the app is fully functional without an internet connection, making it perfect for use during a race.
--   **Privacy First:** All data is processed and stored locally in your browser. Nothing is ever sent to a server. No accounts, no tracking, no API keys needed.
--   **Data-Driven:** The more detail you provide, the more insightful the generated analysis and prompts will be.
+A naive prompt like `"My car understeers in AMS2, what should I do?"` will yield generic, unreliable results from an AI. The model lacks context, reference knowledge, and constraints. The `generateTemplateText` function solves this by acting as a "prompt compiler," taking the application's state (`formData`) and compiling it into a highly optimized, multi-part instruction set that guarantees a high-quality response. This entire strategy is referred to as the **"Kernel Framework."**
 
-## In-Depth Feature Breakdown
+### Technical Anatomy of the "Kernel Framework"
 
-### 1. The Comprehensive Setup Sheet
-Go far beyond the in-game setup screen. This form is a meticulous data sheet covering every tunable parameter, logically grouped into sections:
--   **General Session:** Car, track, weather, LiveTrack state, and session objectives.
--   **Tyres & Brakes:** Granular pressure settings, compounds, brake pressure, bias, and ducting.
--   **Chassis & Aerodynamics:** Downforce, weight bias, and rake.
--   **Suspension:** A deep dive into front and rear geometry, including camber, caster, toe, ride height, spring rates, dampers (bump/rebound), anti-roll bars, and 3rd springs.
--   **Differential:** Supports four distinct differential types (Clutch LSD, Geared, Viscous, Spool) with their unique parameters for both front and rear axles.
--   **Driver Feedback:** Dedicated inputs to translate the driver's feeling about corner entry, mid-corner, and exit handling into data the AI can analyze.
+Each of the four AI prompt templates is constructed using the same four fundamental building blocks. It is the precise technical implementation of these blocks in synergy that makes the system effective.
 
-### 2. Integrated Calculation & Strategy Tools
+#### 1. Part 1: Role & Task Priming (The System Instruction)
 
-**Fuel Calculator:**
-A powerful utility to automate your race strategy.
--   **Inputs:** Race length (laps or time), fuel consumption per lap, average lap time, and the car's fuel tank capacity.
--   **Outputs:** It instantly calculates the total fuel required, the *minimum number of pit stops* needed, an optimal stint length, and the amount to refuel at each stop.
--   **Integration:** With one click, it can **auto-populate** the main Pit Strategy form with its calculated results, saving you time and effort.
+-   **Technical Implementation:** The prompt begins with a direct, imperative command defining the AI's persona and objective.
+    ```
+    **Task:** Act as an expert race engineer for the Automobilista 2 (AMS2) simulator...
+    ```
+-   **LLM Theory:** This leverages the instruction-following capabilities of modern transformer-based models like Gemini. By setting a clear `Task`, we are **priming the model**, which significantly constrains the "search space" of possible responses. It forces the model to activate the nodes in its neural network related to technical analysis and the specific domain ("Automobilista 2") rather than general conversation.
 
-**Race Time Calculator:**
-A unique tool for endurance racers to solve the "Time Progression" puzzle.
--   **Purpose:** Helps you synchronize the in-game race duration (e.g., 24 hours) with your desired *real-world* race time (e.g., 2 hours).
--   **How it Works:** It's a three-way calculator. Provide any two of the following, and it will calculate the third:
-    1.  In-Game Race Duration
-    2.  Target Real-World Race Time
-    3.  AMS2 Time Progression Multiplier (e.g., 20x)
+#### 2. Part 2: Grounding via In-Context Learning (The `AMS2_SETUP_PRINCIPLES` Constant)
 
-**Unit Converter:**
-A floating modal, accessible at all times, to quickly convert between common imperial and metric units used in motorsport (PSI ↔ Bar, °C ↔ °F, kg ↔ lbs, N/mm ↔ lbf/in, etc.).
+-   **Technical Implementation:** A hardcoded constant, `AMS2_SETUP_PRINCIPLES`, containing validated tuning principles for the specific simulator, is injected directly into the prompt's context.
+    ```
+    2.  **AMS2 Setup Principles (Reference Knowledge):**
+        \`\`\`
+        - **General Balance:**
+          - To fix Understeer: Stiffen Rear ARB/Springs, Soften Front ARB/Springs...
+        \`\`\`
+    ```
+-   **LLM Theory:** This is the most critical technical step, known as **grounding**. We are providing the LLM with its required knowledge base as part of the prompt itself. This is a form of **in-context learning**. The model doesn't need to have been trained extensively on AMS2; it can learn the "rules of the game" for the duration of this single API call. The primary technical benefit is the massive reduction in the risk of **hallucination** (the AI inventing incorrect facts). The injected text acts as the single source of truth, overriding any conflicting or overly generic information from the model's foundational training data.
 
-### 3. AI Prompt Generation: The "Kernel Framework"
-This is the app's signature feature. It uses a "Kernel Framework" to transform your data into expert-level prompts that elicit the best possible responses from a Large Language Model.
+#### 3. Part 3: Structured Data Injection (The User's `formData`)
 
--   **Race Engineer:**
-    -   **Analyzes:** Your detailed car setup and your specific driver feedback on handling (e.g., "entry understeer," "snaps on exit").
-    -   **Generates:** A prompt asking an AI to act as a race engineer, identify the root cause of the handling issue, and provide 2-3 specific, actionable tuning suggestions (e.g., "Increase rear anti-roll bar by 2 clicks from 80 N/mm").
+-   **Technical Implementation:** The user's form data is not dumped as a single block of text. It is meticulously structured using Markdown headings, key-value pairs, and code fences (```). Helper functions like `val()` ensure data consistency, and `buildDiffSettings()` handles complex conditional logic.
+    ```
+    4.  **Current Car Setup:**
+        \`\`\`
+        [TYRES]
+        Compound: ${val(data.compound)}
+        Pressures (bar) FL/FR/RL/RR: ${val(data.pressureFL)}/...
+        [FRONT SUSPENSION]
+        ARB: ${val(data.frontARB)} N/mm
+        \`\`\`
+    ```
+-   **LLM Theory:** The structure is paramount for the model's **attention mechanism**. Clear headings and a consistent format allow the LLM to more easily parse the information and identify relationships between disparate data points. For example, it can directly correlate `Driver Feedback: Corner Entry: Entry understeer` with the specific numerical value of `[FRONT SUSPENSION]: ARB`. The use of code fences signals to the model that this is structured, machine-readable data, which improves parsing accuracy.
 
--   **Driver Coach:**
-    -   **Analyzes:** The gap between your target and average lap times, your control method (wheel/gamepad), and your handling feedback.
-    -   **Generates:** A prompt asking an AI to act as a driver coach and give advice purely on *driving technique* to improve consistency and pace, directly addressing the issues you've reported.
+#### 4. Part 4: Output Scoping & Formatting (The `Constraints` & `Output` Blocks)
 
--   **Race Strategist:**
-    -   **Analyzes:** All race parameters—track, car class, race length, weather, fuel consumption, and planned stops.
-    -   **Generates:** A prompt for an AI to create a full qualifying and race strategy, including tyre compound choices per stint, fuel loads, and contingency plans.
+-   **Technical Implementation:** The final part of the prompt is a set of explicit, strict rules for the AI's response.
+    ```
+    **Constraints:**
+    -   Focus *only* on setup changes. Do not advise on driving technique.
+    -   Suggestions must be specific and directional...
+    **Output:**
+    -   Format the response as a numbered list in Markdown.
+    -   Each list item must include a 'Suggestion' and 'Reasoning' field.
+    ```
+-   **LLM Theory:** This section enforces the **output schema**.
+    -   **Negative Constraints** ("Do not...") are powerful for **scoping** the response and preventing the model from providing unhelpful, off-topic advice.
+    -   **Positive Constraints** ("Suggestions must be specific...") force the model to generate actionable, quantitative outputs rather than vague, qualitative ones.
+    -   **Format Enforcement** (demanding specific Markdown with fields) makes the output predictable, clean, and easy for the user to read. It transforms a potentially conversational, unstructured response into a reliable, data-driven report.
 
--   **Baseline Setup Generator:**
-    -   **Analyzes:** The car, track, and your stated objective (e.g., "stable race setup").
-    -   **Generates:** A prompt asking the AI to create a complete, safe, and competitive starting setup from scratch, with a rationale for its key decisions.
+### Conclusion: The Synergy
 
-### 4. Seamless Workflow & Data Management
--   **Preset System:** Save and load an unlimited number of setups as presets. They are stored locally in your browser's storage and are intelligently grouped by the car's **class** in the load menu for easy organization.
--   **Export Options:** You can preview the generated text directly in the app, copy it to your clipboard with a single click, or export the entire data sheet as a `.txt` file for easy sharing and archiving.
+The `generateTemplateText` function is a sophisticated "LLM compiler." It takes a high-level data structure (`formData`) and compiles it into a low-level, machine-optimized instruction set (the prompt). By technically implementing all four parts of the Kernel Framework, it turns a generic LLM into a specialized, expert-level AMS2 race engineer, coach, or strategist on demand.
 
-## A Typical User Workflow
-1.  **Fill the Form:** Open the app and input the details of your current session and car setup. Be as thorough as possible.
-2.  **Add Driver Feedback:** After a few laps, fill in the "Driver Feedback" section to describe how the car feels on the track.
-3.  **Choose a Persona:** In the sidebar, select the "AI Prompt: Race Engineer" template type.
-4.  **Generate & Copy:** Click "Preview Setup," then "Copy to Clipboard."
-5.  **Get AI Advice:** Paste the copied prompt into your preferred AI chat interface (like Gemini). The AI will provide specific tuning advice based on the rich context you've provided.
-6.  **Tune & Test:** Apply the suggested changes in-game and validate the results.
-7.  **Save Your Work:** Once you're happy with the setup, give it a name in the "Presets" section and click "Save Preset" to store it for future use.
+---
 
-## Tech Stack
+## Architectural & Technical Deep Dive
 
--   **React** (with Hooks)
--   **TypeScript**
--   **Tailwind CSS** for styling
--   **Progressive Web App (PWA)** with a Service Worker for offline capabilities.
--   **No Build Step:** The application is written using modern ES modules and an `importmap`, allowing it to run directly in the browser without any complex build configuration.
+This document provides a comprehensive technical breakdown of the application's architecture, design patterns, and core logic for developers and engineers.
 
-## Deployment
+### 1. High-Level Architectural Overview
 
-This application is a static site and can be deployed for free on services like **GitHub Pages**, Vercel, or Netlify.
+-   **"No-Build-Step" Philosophy:** The application is architected to run directly in modern browsers without a mandatory build or bundling step (e.g., Webpack, Vite). This is achieved using:
+    -   **Native ES Modules (`<script type="module">`):** All `.tsx` files are treated as ES modules, managing their own dependencies via `import`/`export` statements.
+    -   **`importmap`:** The `index.html` file defines an `importmap` to resolve bare specifiers like `"react"` to full CDN URLs. This tells the browser where to find the dependencies without a `node_modules` folder.
+    -   **JSX In-Browser Transpilation:** A lightweight transpiler is implicitly used (often via libraries like `es-module-shims` or native browser support under development) to handle JSX syntax on the fly. This results in an extremely simple development setup and a highly portable, static application.
 
-## Contributing & Feedback
+-   **Component-Based Architecture (React):** The UI is built as a tree of reusable React components. The structure follows a standard pattern of "container" (smart) components that manage state and logic, and "presentational" (dumb) components that receive data via props and render UI.
 
-This project is open to contributions and suggestions. If you find a bug, have a feature request, or want to contribute to the code, please feel free to open an issue or submit a pull request.
+-   **Offline-First via Progressive Web App (PWA):** The application is a full PWA. It leverages a Service Worker (`sw.js`) to cache all critical assets (`.html`, `.tsx`, `.css` via CDN). After the initial visit, the app can be launched and used entirely without an internet connection, making it robust for track-side use.
+
+### 2. Core Components & Data Flow
+
+The application follows a strict unidirectional data flow, which enhances predictability and simplifies debugging.
+
+-   **`App.tsx` (Root Component / State Manager):**
+    -   **Role:** The single source of truth. It initializes and manages the application's primary state variables using `useState` hooks: `formData` (the entire setup sheet), `presets` (the list of saved setups), `previewContent` (the generated text), and UI state like `isConverterOpen`.
+    -   **Data Flow:** It passes the `formData` object down to the `SetupForm` as a prop. It also passes down event handler callbacks (e.g., `handleChange`, `handleSavePreset`) that child components use to send data back up to be processed.
+
+-   **`SetupForm.tsx` (Main Form Container):**
+    -   **Role:** A structural component that composes all the individual form sections (e.g., `GeneralSection`, `SuspensionSection`).
+    -   **Data Flow:** It receives `formData` and `handleChange` from `App.tsx` and drills these props down to its children, acting as a passthrough for state and events.
+
+-   **Form Section Components (`GeneralSection`, `SuspensionSection`, etc.):**
+    -   **Role:** Presentational components responsible for a specific part of the form. They contain the business logic for their domain (e.g., the complex layout of the suspension form).
+    -   **Data Flow:** They receive the relevant slice of `formData` to display in their inputs. Every `onChange` event on an input triggers the `handleChange` callback, notifying `App.tsx` to update the state.
+
+-   **`Sidebar.tsx` (Control Panel):**
+    -   **Role:** Manages all user actions, including generating previews, exporting files, and handling the preset system.
+    -   **Data Flow:** It is a stateful component for its own UI (e.g., `presetName` input), but it receives its core functionality as props from `App.tsx` (e.g., `onPreview`, `onExport`, `onSavePreset`). When a user clicks "Preview," it calls the `onPreview` function, which is defined in `App.tsx`, to update the global `previewContent` state.
+
+### 3. State Management Strategy
+
+The application uses React's built-in hooks for state management, which is sufficient and performant for its scope, avoiding the need for external libraries like Redux or MobX.
+
+-   **Centralized State:** The entire form's state is held in a single object (`formData`) in `App.tsx`. This makes state changes predictable and data serialization (for saving presets) straightforward.
+
+-   **`handleChange` Callback Pattern:**
+    ```typescript
+    const handleChange = useCallback((e: React.ChangeEvent<...>) => {
+      const { name, value, type } = e.target;
+      // ... logic for checkboxes vs text inputs
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }, []);
+    ```
+    This function is the primary mechanism for state updates. It is defined once in `App.tsx` and wrapped in `useCallback` to prevent unnecessary re-renders of child components that depend on it. When an input changes in a deeply nested component, this single function is called. It uses the input's `name` attribute to dynamically update the correct key in the `formData` object.
+
+### 4. Data Persistence via `localStorage`
+
+The preset system relies on the browser's `localStorage` API for simple, effective, client-side persistence.
+
+-   **Serialization:** When a user saves or updates presets, the entire `presets` array (which contains `SetupData` objects) is serialized into a JSON string using `JSON.stringify`.
+-   **Storage:** This string is then saved to `localStorage` under a single key (`'ams2-presets'`).
+-   **Deserialization & Hydration:** On application startup, a `useEffect` hook attempts to read this key from `localStorage`. If found, it uses `JSON.parse` to deserialize the string back into a JavaScript array of `Preset` objects, which is then used to hydrate the `presets` state.
+-   **Error Handling:** The loading process is wrapped in a `try...catch` block. This is a crucial defensive measure to prevent the entire app from crashing if the data in `localStorage` becomes corrupted or is manually edited into an invalid format.
+
+### 5. Offline-First Architecture (PWA & Service Worker)
+
+-   **`manifest.json`:** This file provides the metadata that allows the browser to recognize the site as an installable PWA, defining its name, icon, theme colors, and display mode (`standalone`).
+
+-   **`sw.js` (Service Worker Script):**
+    -   **`install` Event:** This is triggered when the service worker is first registered. It opens a specific version of the cache (`CACHE_NAME`) and pre-caches an array of critical assets (`urlsToCache`). This ensures the app shell is always available offline.
+    -   **`fetch` Event:** This is the core of the offline strategy. It intercepts *every* network request made by the application.
+        1.  It first checks if a matching response already exists in the cache using `caches.match(event.request)`.
+        2.  If a cached response is found (a "cache hit"), it is returned immediately, avoiding the network entirely.
+        3.  If not in the cache, it proceeds with the network request using `fetch()`.
+        4.  If the fetch is successful, it clones the response and puts it into the cache for future requests before returning the response to the browser. This is a "cache-first, then network" strategy with dynamic caching.
+    -   **`activate` Event:** This event fires after a new service worker is installed and activated. Its purpose is to perform cleanup. It gets a list of all existing cache names and deletes any that do not match the current `CACHE_NAME`. This is crucial for ensuring that users receive updated assets when a new version of the app is deployed.
+
+### 6. Component Encapsulation (Calculators & Modals)
+
+The `FuelCalculator`, `RaceTimeCalculator`, and `UnitConverterModal` are excellent examples of component encapsulation.
+
+-   **Local State Management:** Each of these components manages its own complex state internally using its own `useState` hooks. For example, the `FuelCalculator` tracks all its inputs (`lapDistance`, `fuelPerLap`, etc.) locally.
+-   **Decoupling:** This design decouples the calculator's logic from the main application state. The global `formData` is not updated on every keystroke within a calculator, which would be inefficient.
+-   **Controlled Interaction:** The calculators only interact with the global state at specific moments.
+    -   The `FuelCalculator` calls the `updateFormData` callback (passed down from `App.tsx`) *only* when the user clicks the "Calculate" button, committing its final results to the main form.
+    -   The `UnitConverterModal` is entirely self-contained and does not interact with the main form's state at all, serving as a purely informational utility.
+
+This encapsulated approach leads to a more modular, maintainable, and performant application.
